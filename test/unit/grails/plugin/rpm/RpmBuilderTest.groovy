@@ -72,6 +72,71 @@ class RpmBuilderTest {
         mockBuilder.verify()
     }
 
+    @Test
+    void dependenciesShouldBeSpecifiedAsMoreDependencies() {
+        def rpmBuilder = rpmBuilder([
+            dependencies: [
+                jdk: "1.7",
+                curl: "7.0.0"
+            ]
+        ])
+
+        def mockBuilder = mockBuilder()
+        mockBuilder.demand.addDependencyMore(2) { packageName, version ->
+            if (packageName == "jdk") {
+                assertEquals("1.7", version)
+            } else if (packageName == "curl") {
+                assertEquals("7.0.0", version)
+            } else {
+                throw new IllegalArgumentException("Invalid dependency: $packageName")
+            }
+        }
+        rpmBuilder.builder = mockBuilder.createMock()
+        rpmBuilder.build()
+        mockBuilder.verify()
+    }
+
+    @Test
+    void nodesInStructureShouldBeSpecifiedAsDirectories() {
+        def rpmBuilder = rpmBuilder([
+            structure: [
+                apps: [
+                    test: []
+                ],
+                etc: []
+            ]
+        ])
+
+        def mockBuilder = mockBuilder()
+        mockBuilder.demand.addDirectory(3) {}
+        rpmBuilder.builder = mockBuilder.createMock()
+        rpmBuilder.build()
+        mockBuilder.verify()
+    }
+
+    @Test
+    void filesInStructureShouldBeSpecifiedAsFiles() {
+        def rpmBuilder = rpmBuilder([
+                structure: [
+                        apps: [
+                                test: [
+                                    files: [
+                                        "test/unit/resources/testFile.txt": [:]
+                                    ]
+                                ]
+                        ],
+                        etc: [ files: ["test/unit/resources/testFile.txt": [:]]]
+                ]
+        ])
+
+        def mockBuilder = mockBuilder()
+        mockBuilder.demand.addDirectory(3) {}
+        mockBuilder.demand.addFile(2) {}
+        rpmBuilder.builder = mockBuilder.createMock()
+        rpmBuilder.build()
+        mockBuilder.verify()
+    }
+
     def rpmBuilder(def config, def name = "test", String release = "") {
         if (!config.packageInfo) {
             config.packageInfo = [name: "testApp", version: "1.0"]

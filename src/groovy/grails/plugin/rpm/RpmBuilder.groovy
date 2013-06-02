@@ -57,9 +57,7 @@ class RpmBuilder {
         }
 
         directory.files.each { fileName, fileInfo ->
-            if (!fileInfo.permissions) {
-                throw new IllegalArgumentException("No permissions set for file $fileName")
-            }
+            int filePermissions = fileInfo.permissions ?: 775
             Directive fileDirective = fileInfo.directive ?: Directive.NONE
             String fileUser = fileInfo.user ?: "root"
             String fileGroup = fileInfo.group ?: "group"
@@ -67,7 +65,7 @@ class RpmBuilder {
             println "Looking for $fileName"
             file.parentFile.listFiles((FilenameFilter) new WildcardFileFilter(file.name)).each { nextFile ->
                 println "Adding file $nextFile.absolutePath"
-                builder.addFile("$directoryPath/$nextFile.name",  nextFile, fileInfo.permissions, fileDirective, fileUser, fileGroup)
+                builder.addFile("$directoryPath/$nextFile.name",  nextFile, filePermissions, fileDirective, fileUser, fileGroup)
             }
         }
 
