@@ -91,11 +91,17 @@ class RpmBuilder {
 
     protected void init() {
         config.metaData.each { nextPropertyName, nextPropertyValue ->
-            builder[nextPropertyName] = nextPropertyValue
+            builder."$nextPropertyName" = nextPropertyValue
         }
 
+        if (!config.packageInfo) {
+            throw new IllegalArgumentException("packageInfo must be specified")
+        }
         builder.setPackage(config.packageInfo.name, config.packageInfo.version, this.rpmRelease)
 
+        if (!config.platform) {
+            throw new IllegalArgumentException("platform must be specified")
+        }
         builder.setPlatform(config.platform.arch, config.platform.osName)
 
         config.dependencies.each { nextDependency ->
