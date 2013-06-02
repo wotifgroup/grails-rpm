@@ -102,12 +102,16 @@ dependencies is map of the installed packages (and their versions) that your rpm
 
 ### structure
 structure is the actual layout of the content of the rpm. It specifies the files (and associated metadata) that the rpm will install onto the box as
-a tree structure. At each node (either a file or a directory) in the tree, you can specify the permissions, user and group and [RPM directive](http://www.rpm.org/max-rpm/s1-rpm-inside-files-list-directives.html) for that
+a tree structure. At each node (i.e. directory) in the tree, you can specify the permissions, user and group and [RPM directive](http://www.rpm.org/max-rpm/s1-rpm-inside-files-list-directives.html) for that
 node. If you don't specify values for each node then it will assume the defaults:
 - permissions: 775
 - user: "root"
 - group: "root"
 - RPM directive: none
+
+Each node may also then specify a set of files to install at that directory, via the "files" map. Each file node can specify, as with a directory, the
+permissions, user, group and directive. The name of the file may also be wildcarded, according to commons-io [WildcardFileFilter](http://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/filefilter/WildcardFileFilter.html)
+to match multiple files or to match a file with a variable name (e.g. jar file whose name includes a version or date).
 
 ## Command-Line Arguments
 By default, the rpm will be named with the following form: appName-appVersion-date.noarch.rpm. You can optionally add a release
