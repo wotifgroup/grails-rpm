@@ -2,6 +2,9 @@ package grails.plugin.rpm
 
 import org.apache.commons.io.filefilter.WildcardFileFilter
 import org.freecompany.redline.Builder
+import org.freecompany.redline.header.Architecture
+import org.freecompany.redline.header.Os
+import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 
 class RpmBuilder {
@@ -11,8 +14,8 @@ class RpmBuilder {
     String rpmRelease
     Builder builder
 
-    public RpmBuilder(def grailsConfig, String rpmName, String rpmRelease) {
-        this.config = grailsConfig.rpm
+    public RpmBuilder(def config, String rpmName, String rpmRelease) {
+        this.config = config
         this.rpmName = rpmName
         this.rpmRelease = rpmRelease
         this.builder = new Builder()
@@ -49,7 +52,7 @@ class RpmBuilder {
             } else if (key == "files") {
                 //ignore, will handle after
             } else if (key == "directive") {
-                directoryDirective = value
+                directoryDirective = Directive[value]
             } else {
                 //must be another directory
                 addDirectory("$directoryPath/$key", value)
@@ -58,7 +61,7 @@ class RpmBuilder {
 
         directory.files.each { fileName, fileInfo ->
             int filePermissions = fileInfo.permissions ?: 775
-            Directive fileDirective = fileInfo.directive ?: Directive.NONE
+            Directive fileDirective = fileInfo.directive ? Directive[fileInfo.directive] : Directive.NONE
             String fileUser = fileInfo.user ?: "root"
             String fileGroup = fileInfo.group ?: "group"
             File file = new File(".", fileName)
@@ -88,6 +91,10 @@ class RpmBuilder {
     }
 
     protected void init() {
+        //convert String constants to Enums
+        if (config.metaData?.type) {
+            config.metaData.type = RpmType.valueOf(config.metaData.type)
+        }
         config.metaData.each { nextPropertyName, nextPropertyValue ->
             builder."$nextPropertyName" = nextPropertyValue
         }
@@ -100,7 +107,8 @@ class RpmBuilder {
         if (!config.platform) {
             throw new IllegalArgumentException("platform must be specified")
         }
-        builder.setPlatform(config.platform.arch, config.platform.osName)
+        builder.setPlatform(Architecture.valueOf(config.platform.arch),
+                            Os.valueOf(config.platform.osName))
 
         config.dependencies.each { nextDependency ->
             builder.addDependencyMore(nextDependency.key, nextDependency.value)

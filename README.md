@@ -4,12 +4,12 @@ grails-rpm
 Create a configurable rpm from your grails artifacts.
 
 ## Quick start
-Here's a sample rpm configuration that you can drop into Config.groovy:
+Here's a sample rpm configuration that you can drop into BuildConfig.groovy:
 ```
-rpm {
-    appUser = "testApp"
-    appGroup = "sg_testApp"
-    metaData = [
+rpm = [
+    appUser: "testApp",
+    appGroup: "sg_testApp",
+    metaData: [
         vendor: "You",
         group: "Applications/Internet",
         description: "$appName RPM",
@@ -19,23 +19,24 @@ rpm {
         url: "http://github.com/project?id=${argsMap.git_hash}",
         distribution: "(none)",
         buildHost: System.getProperty("HOSTNAME") ?: 'localhost',
-        type: RpmType.BINARY,
+        type: "BINARY",
         prefixes: "/apps/test"
-    ]
-    preRemove = "rpm/scripts/preremove.sh"
-    postInstall = "rpm/scripts/postinstall.sh"
-    packageInfo = [name: appName, version: appVersion]
-    platform = [arch: Architecture.NOARCH, osName: Os.LINUX]
-    dependencies = [
+    ],
+    preRemove: "rpm/scripts/preremove.sh",
+    postInstall: "rpm/scripts/postinstall.sh",
+    packageInfo: [name: appName, version: appVersion],
+    platform: [arch: "NOARCH", osName: "LINUX"],
+    dependencies: [
         jdk: "1.7",
         curl: "7.0.0"
-    ]
-    structure = [
+    ],
+    structure: [
         apps: [
             test: [
                 permissions: 775,
                 user: rpm.appUser,
                 group: rpm.appGroup,
+                directive: "CONFIG",
                 bin: [
                     permissions: 775,
                     files: [
@@ -52,7 +53,7 @@ rpm {
                     files: [
                         "rpm/apps/test/etc/.keystorepassword": [
                             permissions: 644,
-                            directive: org.freecompany.redline.payload.Directive.CONFIG
+                            directive: "CONFIG"
                         ]
                     ]
                 ]
@@ -63,13 +64,13 @@ rpm {
                 files: [
                     "rpm/etc/logrotate.d/test": [
                         permissions: 644,
-                        directive: org.freecompany.redline.payload.Directive.CONFIG
+                        directive: "CONFIG"
                     ]
                 ]
             ]
         ]
     ]
-}
+]
 ```
 Tweak it as needed. Then run:
 ```
@@ -78,11 +79,13 @@ grails rpm
 to produce your rpm.
 
 ## Configuration
-The rpm plugin works by reading from your grails configuration the property "rpm", which is an object defining the structure of the rpm you
+The rpm plugin works by reading from your grails build configuration the property "rpm", which is an object defining the structure of the rpm you
 wish to build. The rpm property is broken into the following sections:
 
 ### metaData
 The metaData section is a map, allowing you to set any of the bean properties on [redline's Builder class](http://redline-rpm.org/apidocs/org/freecompany/redline/Builder.html).
+
+type is one of the enum values from [redline's RpmType](http://redline-rpm.org/apidocs/org/freecompany/redline/header/RpmType.html).
 
 ### Pre/Post Scripts
 You can specify shell scripts inside your grails project to run on post-install or pre-uninstall of the rpm:
@@ -95,7 +98,8 @@ postInstall = "rpm/scripts/postinstall.sh"
 packageInfo is a double which lets you specify the name and version of the installed package. See "Command-Line Arguments" below for how to set the release.
 
 ### platform
-platform lets you specify the intended architecture and OS for your rpm.
+platform lets you specify the intended architecture and OS for your rpm. The values here should be one of enum values from redline's [Architecture](http://redline-rpm.org/apidocs/org/freecompany/redline/header/Architecture.html)
+or [Os](http://redline-rpm.org/apidocs/org/freecompany/redline/header/Os.html)
 
 ### dependencies
 dependencies is map of the installed packages (and their versions) that your rpm depends on.

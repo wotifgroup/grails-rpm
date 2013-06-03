@@ -4,7 +4,7 @@ target(rpmMain: "Build the application RPM") {
     depends(configureProxy, classpath, loadApp)
 
     //have to invoke this via reflection to work around gant classpathing issues
-    def rpmBuilder = classLoader.loadClass('grails.plugin.rpm.RpmBuilder').newInstance(config, rpmName, argsMap.release ?: "")
+    def rpmBuilder = classLoader.loadClass('grails.plugin.rpm.RpmBuilder').newInstance(buildSettings.config.rpm, rpmName, argsMap.release ?: "")
     rpmBuilder.build()
 
     println "Complete"

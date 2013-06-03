@@ -3,8 +3,6 @@ package grails.plugin.rpm
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
 import org.freecompany.redline.Builder
-import org.freecompany.redline.header.Architecture
-import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.junit.Test
 
@@ -24,7 +22,7 @@ class RpmBuilderTest {
                 url: "http://github.com/project",
                 distribution: "(none)",
                 buildHost: "localhost",
-                type: RpmType.BINARY,
+                type: "BINARY",
                 prefixes: "/apps/test"
             ]
         ])
@@ -142,9 +140,9 @@ class RpmBuilderTest {
             config.packageInfo = [name: "testApp", version: "1.0"]
         }
         if (!config.platform) {
-            config.platform = [arch: Architecture.NOARCH, osName: Os.LINUX]
+            config.platform = [arch: "NOARCH", osName: "LINUX"]
         }
-        new RpmBuilder([rpm: config], name, release)
+        new RpmBuilder(config, name, release)
     }
 
     def mockBuilder() {
