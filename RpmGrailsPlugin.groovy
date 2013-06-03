@@ -7,7 +7,7 @@ class RpmGrailsPlugin {
 Create an rpm from your grails artifacts, based configuration in Config.groovy.
 '''
 
-    def documentation = "http://grails.org/plugin/rpm"
+    def documentation = "https://github.com/aharwood/grails-rpm"
 
 
     def license = "APACHE"
