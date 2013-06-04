@@ -38,7 +38,7 @@ class RpmBuilder {
     }
 
     protected void addDirectory(String directoryPath, def directory) {
-        int permissions = 775
+        int permissions = 0775
         String user = "root"
         String group = "root"
         Directive directoryDirective = Directive.NONE
@@ -65,7 +65,7 @@ class RpmBuilder {
         }
 
         directory.files.each { fileName, fileInfo ->
-            int filePermissions = fileInfo.permissions ?: 775
+            int filePermissions = fileInfo.permissions ?: 0775
             Directive fileDirective = fileInfo.directive ? Directive[fileInfo.directive] : Directive.NONE
             String fileUser = fileInfo.user ?: "root"
             String fileGroup = fileInfo.group ?: "group"
