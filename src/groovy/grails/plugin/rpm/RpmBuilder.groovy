@@ -68,7 +68,7 @@ class RpmBuilder {
             int filePermissions = fileInfo.permissions ?: 0775
             Directive fileDirective = fileInfo.directive ? Directive[fileInfo.directive] : Directive.NONE
             String fileUser = fileInfo.user ?: "root"
-            String fileGroup = fileInfo.group ?: "group"
+            String fileGroup = fileInfo.group ?: "root"
             File file = new File(".", fileName)
             println "Looking for $fileName"
             file.parentFile.listFiles((FilenameFilter) new WildcardFileFilter(file.name)).each { nextFile ->
