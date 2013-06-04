@@ -1,5 +1,5 @@
 class RpmGrailsPlugin {
-    def version = "0.9.3"
+    def version = "0.9.4"
     def grailsVersion = "2.0 > *"
 
     def title = "Rpm Plugin"

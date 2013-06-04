@@ -42,17 +42,22 @@ class RpmBuilder {
         String user = "root"
         String group = "root"
         Directive directoryDirective = Directive.NONE
+        boolean hasAttributes = false
         directory.each {key, value ->
             if (key == "permissions") {
                 permissions = value
+                hasAttributes = true
             } else if (key == "user") {
                 user = value
+                hasAttributes = true
             } else if (key == "group") {
                 group = value
-            } else if (key == "files") {
-                //ignore, will handle after
+                hasAttributes = true
             } else if (key == "directive") {
                 directoryDirective = Directive[value]
+                hasAttributes = true
+            } else if (key == "files") {
+                //ignore, will handle after
             } else {
                 //must be another directory
                 addDirectory("$directoryPath/$key", value)
@@ -72,13 +77,15 @@ class RpmBuilder {
             }
         }
 
-        println "Adding directory $directoryPath"
-        builder.addDirectory(directoryPath,
-                permissions,
-                directoryDirective,
-                user,
-                group,
-                false)
+        if (hasAttributes) {
+            println "Adding directory $directoryPath"
+            builder.addDirectory(directoryPath,
+                    permissions,
+                    directoryDirective,
+                    user,
+                    group,
+                    false)
+        }
     }
 
     protected void addScripts() {

@@ -97,18 +97,18 @@ class RpmBuilderTest {
     }
 
     @Test
-    void nodesInStructureShouldBeSpecifiedAsDirectories() {
+    void nodesInStructureWithAttributesShouldBeSpecifiedAsDirectories() {
         def rpmBuilder = rpmBuilder([
             structure: [
                 apps: [
-                    test: []
+                    test: [permissions: 744]
                 ],
-                etc: []
+                etc: [permissions: 644]
             ]
         ])
 
         def mockBuilder = mockBuilder()
-        mockBuilder.demand.addDirectory(3) {}
+        mockBuilder.demand.addDirectory(2) {}
         rpmBuilder.builder = mockBuilder.createMock()
         rpmBuilder.build()
         mockBuilder.verify()
@@ -130,7 +130,6 @@ class RpmBuilderTest {
         ])
 
         def mockBuilder = mockBuilder()
-        mockBuilder.demand.addDirectory(3) {}
         mockBuilder.demand.addFile(2) {}
         rpmBuilder.builder = mockBuilder.createMock()
         rpmBuilder.build()
