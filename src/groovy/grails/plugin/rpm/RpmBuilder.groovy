@@ -91,13 +91,7 @@ class RpmBuilder {
     }
 
     protected void init() {
-        //convert String constants to Enums
-        if (config.metaData?.type) {
-            config.metaData.type = RpmType.valueOf(config.metaData.type)
-        }
-        config.metaData.each { nextPropertyName, nextPropertyValue ->
-            builder."$nextPropertyName" = nextPropertyValue
-        }
+        initMetaData()
 
         if (!config.packageInfo) {
             throw new IllegalArgumentException("packageInfo must be specified")
@@ -112,6 +106,25 @@ class RpmBuilder {
 
         config.dependencies.each { nextDependency ->
             builder.addDependencyMore(nextDependency.key, nextDependency.value)
+        }
+    }
+
+    protected void initMetaData() {
+        if (!config.metaData) {
+            config.metaData = [:]
+        }
+
+        //convert String constants to Enums
+        if (config.metaData.type) {
+            config.metaData.type = RpmType.valueOf(config.metaData.type)
+        }
+
+        //default src rpm
+        if (!config.metaData.sourceRpm) {
+            config.metaData.sourceRpm = "${rpmName}.src.rpm"
+        }
+        config.metaData.each { nextPropertyName, nextPropertyValue ->
+            builder."$nextPropertyName" = nextPropertyValue
         }
     }
 

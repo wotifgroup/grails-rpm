@@ -23,7 +23,8 @@ class RpmBuilderTest {
                 distribution: "(none)",
                 buildHost: "localhost",
                 type: "BINARY",
-                prefixes: "/apps/test"
+                prefixes: "/apps/test",
+                sourceRpm: "special.src.rpm"
             ]
         ])
 
@@ -39,6 +40,7 @@ class RpmBuilderTest {
         mockBuilder.demand.setBuildHost(1) {vendor -> assertEquals("localhost", vendor)}
         mockBuilder.demand.setType(1) {vendor -> assertEquals(RpmType.BINARY, vendor)}
         mockBuilder.demand.setPrefixes(1) {vendor -> assertEquals("/apps/test", vendor)}
+        mockBuilder.demand.setSourceRpm(1) {vendor -> assertEquals("special.src.rpm", vendor)}
         rpmBuilder.builder = mockBuilder.createMock()
         rpmBuilder.build()
         mockBuilder.verify()
@@ -130,6 +132,17 @@ class RpmBuilderTest {
         def mockBuilder = mockBuilder()
         mockBuilder.demand.addDirectory(3) {}
         mockBuilder.demand.addFile(2) {}
+        rpmBuilder.builder = mockBuilder.createMock()
+        rpmBuilder.build()
+        mockBuilder.verify()
+    }
+
+    @Test
+    void sourceRpmShouldDefaultIfNotSpecified() {
+        def rpmBuilder = rpmBuilder([:])
+
+        def mockBuilder = mockBuilder()
+        mockBuilder.demand.setSourceRpm(1) {vendor -> assertEquals("test.src.rpm", vendor)}
         rpmBuilder.builder = mockBuilder.createMock()
         rpmBuilder.build()
         mockBuilder.verify()
