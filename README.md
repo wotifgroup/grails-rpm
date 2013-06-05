@@ -43,6 +43,12 @@ rpm = [
                         "target/$appName*.jar": [
                             permissions: 744,
                             dirPermissions: 644
+                            links: [
+                                "$appName.jar": [
+                                    to: "/apps/test/other.txt",
+                                    permissions: 0755
+                                ]
+                            ]
                         ]
                     ]
                 ],
@@ -115,7 +121,10 @@ node. If you don't specify values for each node then it will assume the defaults
 
 Each node may also then specify a set of files to install at that directory, via the "files" map. Each file node can specify, as with a directory, the
 permissions, user, group and directive. The name of the file may also be wildcarded, according to commons-io [WildcardFileFilter](http://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/filefilter/WildcardFileFilter.html)
-to match multiple files or to match a file with a variable name (e.g. jar file whose name includes a version or date).
+to match multiple files or to match a file with a variable name (e.g. jar file whose name includes a version or date). It can also specify a map of "links", which will be symlinks created to this file.
+
+Each node may also specify a set of symlinks to install at that directory, via the "links" map. Each entry should specify the real file the link points to, as well as optionally
+the permissions for that symlink
 
 ## Command-Line Arguments
 By default, the rpm will be named with the following form: appName-appVersion-date.noarch.rpm. You can optionally add a release

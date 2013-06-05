@@ -58,24 +58,15 @@ class RpmBuilder {
                 hasAttributes = true
             } else if (key == "files") {
                 //ignore, will handle after
-            } else {
-                //must be another directory
+            } else if (key == "links") {
+                //ignore, will handle after
+            } else  {
                 addDirectory("$directoryPath/$key", value)
             }
         }
 
-        directory.files.each { fileName, fileInfo ->
-            int filePermissions = fileInfo.permissions ?: 0775
-            Directive fileDirective = fileInfo.directive ? Directive[fileInfo.directive] : Directive.NONE
-            String fileUser = fileInfo.user ?: "root"
-            String fileGroup = fileInfo.group ?: "root"
-            File file = new File(".", fileName)
-            println "Looking for $fileName"
-            file.parentFile.listFiles((FilenameFilter) new WildcardFileFilter(file.name)).each { nextFile ->
-                println "Adding file $nextFile.absolutePath"
-                builder.addFile("$directoryPath/$nextFile.name",  nextFile, filePermissions, fileDirective, fileUser, fileGroup)
-            }
-        }
+        addFiles(directory.files, directoryPath)
+        addLinks(directory.links, directoryPath)
 
         if (hasAttributes) {
             println "Adding directory $directoryPath"
@@ -85,6 +76,40 @@ class RpmBuilder {
                     user,
                     group,
                     false)
+        }
+    }
+
+    protected void addFiles(def files, String directoryPath) {
+        files.each { fileName, fileInfo ->
+            int filePermissions = fileInfo.permissions ?: 0775
+            Directive fileDirective = fileInfo.directive ? Directive[fileInfo.directive] : Directive.NONE
+            String fileUser = fileInfo.user ?: "root"
+            String fileGroup = fileInfo.group ?: "root"
+            File file = new File(".", fileName)
+            println "Looking for $fileName"
+            file.parentFile.listFiles((FilenameFilter) new WildcardFileFilter(file.name)).each { nextFile ->
+                println "Adding file $nextFile.absolutePath"
+                String filePath = "$directoryPath/$nextFile.name"
+                builder.addFile("$directoryPath/$nextFile.name",  nextFile, filePermissions, fileDirective, fileUser, fileGroup)
+
+                if (fileInfo.links) {
+                    fileInfo.links.each { linkPath, linkInfo ->
+                        if (!linkPath.startsWith("/")) {
+                            //relative. Assume directoryPath
+                            linkPath = "$directoryPath/$linkPath"
+                        }
+                        int linkPermissions = linkInfo.permissions ?: 0775
+                        builder.addLink(linkPath, filePath, linkPermissions)
+                    }
+                }
+            }
+        }
+    }
+
+    protected void addLinks(def links, String directoryPath) {
+        links.each { linkName, linkInfo ->
+            int linkPermissions = linkInfo.permissions ?: 0775
+            builder.addLink("$directoryPath/$linkName", linkInfo.to, linkPermissions)
         }
     }
 

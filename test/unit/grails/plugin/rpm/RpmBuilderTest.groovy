@@ -147,6 +147,77 @@ class RpmBuilderTest {
         mockBuilder.verify()
     }
 
+    @Test
+    void linksShouldBeSpecifiedAsSymlinks() {
+        def rpmBuilder = rpmBuilder([
+                structure: [
+                        apps: [
+                            test: [
+                                files: [
+                                    "test/unit/resources/testFile.txt": [:]
+                                ],
+                                links: [
+                                    "symlink": [
+                                        to: "/apps/test/testFile.txt",
+                                        permissions: 0755
+                                    ]
+                                ]
+                            ]
+                        ],
+                ]
+        ])
+
+        def mockBuilder = mockBuilder()
+        mockBuilder.demand.addFile(1) {}
+        mockBuilder.demand.addLink(1) {path, target, permissions ->
+            assertEquals("/apps/test/symlink", path)
+            assertEquals("/apps/test/testFile.txt", target)
+            assertEquals(0755, permissions)
+        }
+        rpmBuilder.builder = mockBuilder.createMock()
+        rpmBuilder.build()
+        mockBuilder.verify()
+    }
+
+    @Test
+    void linksOnFilesShouldBeSpecifiedAsSymlinks() {
+        def rpmBuilder = rpmBuilder([
+                structure: [
+                        apps: [
+                            test: [
+                                files: [
+                                    "test/unit/resources/testFile.txt": [
+                                        links: [
+                                            "relativeLink": [:],
+                                            "/apps/test/symlink": [
+                                                permissions: 0755
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ],
+                ]
+        ])
+
+        def mockBuilder = mockBuilder()
+        mockBuilder.demand.addFile(1) {}
+        mockBuilder.demand.addLink(2) {path, target, permissions ->
+            if (path == "/apps/test/relativeLink") {
+                assertEquals("/apps/test/testFile.txt", target)
+                assertEquals(0775, permissions)
+            } else if (path == "/apps/test/symlink") {
+                assertEquals("/apps/test/testFile.txt", target)
+                assertEquals(0755, permissions)
+            } else {
+                throw new IllegalStateException("Unexpected path: $path")
+            }
+        }
+        rpmBuilder.builder = mockBuilder.createMock()
+        rpmBuilder.build()
+        mockBuilder.verify()
+    }
+
     def rpmBuilder(def config, def name = "test", String release = "") {
         if (!config.packageInfo) {
             config.packageInfo = [name: "testApp", version: "1.0"]
