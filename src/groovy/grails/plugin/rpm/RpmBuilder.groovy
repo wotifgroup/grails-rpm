@@ -90,7 +90,7 @@ class RpmBuilder {
             file.parentFile.listFiles((FilenameFilter) new WildcardFileFilter(file.name)).each { nextFile ->
                 println "Adding file $nextFile.absolutePath"
                 String filePath = "$directoryPath/$nextFile.name"
-                builder.addFile("$directoryPath/$nextFile.name",  nextFile, filePermissions, fileDirective, fileUser, fileGroup)
+                builder.addFile("$directoryPath/$nextFile.name",  nextFile, filePermissions, -1, fileDirective, fileUser, fileGroup, false)
 
                 if (fileInfo.links) {
                     fileInfo.links.each { linkPath, linkInfo ->
