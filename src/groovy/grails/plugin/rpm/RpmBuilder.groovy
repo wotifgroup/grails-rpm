@@ -3,6 +3,7 @@ package grails.plugin.rpm
 import org.apache.commons.io.filefilter.WildcardFileFilter
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Architecture
+import org.freecompany.redline.header.Flags
 import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
@@ -137,7 +138,11 @@ class RpmBuilder {
                             Os.valueOf(config.platform.osName))
 
         config.dependencies.each { nextDependency ->
-            builder.addDependencyMore(nextDependency.key, nextDependency.value)
+            if(nextDependency.value != "") {
+                builder.addDependencyMore(nextDependency.key, nextDependency.value)
+            } else {
+                builder.addDependency(nextDependency.key, nextDependency.value, Flags.PREREQ);
+            }
         }
     }
 
