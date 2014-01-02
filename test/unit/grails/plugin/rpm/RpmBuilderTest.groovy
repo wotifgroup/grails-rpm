@@ -3,6 +3,7 @@ package grails.plugin.rpm
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
 import org.freecompany.redline.Builder
+import org.freecompany.redline.header.Flags
 import org.freecompany.redline.header.RpmType
 import org.junit.Test
 
@@ -87,6 +88,28 @@ class RpmBuilderTest {
                 assertEquals("1.7", version)
             } else if (packageName == "curl") {
                 assertEquals("7.0.0", version)
+            } else {
+                throw new IllegalArgumentException("Invalid dependency: $packageName")
+            }
+        }
+        rpmBuilder.builder = mockBuilder.createMock()
+        rpmBuilder.build()
+        mockBuilder.verify()
+    }
+
+    @Test
+    void dependenciesShouldBeAllowedWithoutVersionNumbers() {
+        def rpmBuilder = rpmBuilder([
+                dependencies: [
+                        jdk: ""
+                ]
+        ])
+
+        def mockBuilder = mockBuilder()
+        mockBuilder.demand.addDependency(1) { packageName, version, flags ->
+            if (packageName == "jdk") {
+                assertEquals("", version)
+                assertEquals(Flags.PREREQ, flags)
             } else {
                 throw new IllegalArgumentException("Invalid dependency: $packageName")
             }
