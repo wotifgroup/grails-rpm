@@ -9,6 +9,7 @@ Create an rpm from your grails artifacts, based configuration in Config.groovy.
 
     def documentation = "https://github.com/aharwood/grails-rpm"
 
+    def groupId="org.grails.plugins"
 
     def license = "APACHE"
 
